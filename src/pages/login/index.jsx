@@ -1,8 +1,11 @@
+// import必须放在最上面，否则会报错
 import React, { Component } from 'react';
 import { Form, Icon, Input, Button } from 'antd';
 import './index.less'
-import logo from './logo.png'
-const Item = Form.Item;
+import logo from './logo.png'   //引入图片资源：在react脚手架中图片必须引入才会打包
+
+
+const Item = Form.Item;  //缓存一次啊
 
 class Login extends Component {
   
@@ -26,6 +29,15 @@ class Login extends Component {
   
   login = (e) => {
     e.preventDefault();
+    this.props.form.validateFields((error, values) => {
+      // console.log(error, values);
+      if(!error){
+        const { username, password } = values;
+        console.log(username, password)
+      }else{
+        console.log('表单校验失败：',error)
+      }
+    })
   }
   
   render() {
@@ -66,7 +78,7 @@ class Login extends Component {
               }
             </Item>
             <Item>
-              <Button type="primary" className="login_btn">登录</Button>
+              <Button type="primary" className="login_btn" htmlType="submit">登录</Button>
             </Item>
           </Form>
         
