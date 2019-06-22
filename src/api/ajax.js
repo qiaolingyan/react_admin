@@ -1,10 +1,10 @@
 import axios from "axios";
 import {message} from "antd";
 
-export default function ajax(url,data = {},method = 'GET'){
+export default function ajax(url,data = {},method = 'get'){
   
   method = method.toLowerCase();
-  const reqParams = method === 'GET' ? {params:data} : data ;
+  const reqParams = method === 'get' ? {params:data} : data ;
   
   return axios[method](url,reqParams)      //method必须为小写，所以要转换为小写
   .then(res => {
