@@ -1,7 +1,7 @@
 // import必须放在最上面，否则会报错
 import React, { Component } from 'react';
-import { Form, Icon, Input, Button, message } from 'antd';
-import axios from 'axios';
+import { Form, Icon, Input, Button } from 'antd';
+import { reLogin } from '../../api';
 import './index.less'
 import logo from './logo.png'   //引入图片资源：在react脚手架中图片必须引入才会打包
 
@@ -25,26 +25,16 @@ class Login extends Component {
   };
   login = (e) => {
     e.preventDefault();
-    this.props.form.validateFields((error, values) => {
+    this.props.form.validateFields(async (error, values) => {
       // console.log(error, values);  error表单校验结果：null - 校验通过，{} - 校验失败
       if(!error){
         const { username, password } = values;
+        
         //发送请求
-        axios.post('/login',{username,password})
-          .then(res => {
-            // console.log(res)
-            const data = res.data;
-            if(!data.status){
-              this.props.history.replace('/')
-            }else{
-              message.error(data.msg,2);
-              this.props.form.resetFields(['password'])
-            }
-          })
-          .catch(err => {
-            message.error("您的网络异常，请刷新重试",2);
-            this.props.form.resetFields(['password'])
-          })
+        const result = await reLogin(username, password);
+        if(result) this.props.history.replace('/');
+        else this.props.form.resetFields(['password']);
+        
       }else{
         console.log('表单校验失败：',error)
       }
