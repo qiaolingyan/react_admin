@@ -1,19 +1,16 @@
 // import必须放在最上面，否则会报错
 import React, { Component } from 'react';
-import { Form, Icon, Input, Button } from 'antd';
+import { Form, Icon, Input, Button, message } from 'antd';
+import axios from 'axios';
 import './index.less'
 import logo from './logo.png'   //引入图片资源：在react脚手架中图片必须引入才会打包
 
-
-const Item = Form.Item;  //缓存一次啊
+const Item = Form.Item;  //缓存
 
 class Login extends Component {
-  
-  
-  validator = (key,value,callback) => {
-    
-    const name =key.fullField === 'username' ? '用户名' : '密码';
-    
+  //自定义校验规则函数
+  validator = (rule,value,callback) => {
+    const name =rule.fullField === 'username' ? '用户名' : '密码';
     if(!value){
       callback(`请输入${name}`)
     }else if(value.length < 4){
@@ -26,30 +23,42 @@ class Login extends Component {
       callback();
     }
   };
-  
   login = (e) => {
     e.preventDefault();
     this.props.form.validateFields((error, values) => {
-      // console.log(error, values);
+      // console.log(error, values);  error表单校验结果：null - 校验通过，{} - 校验失败
       if(!error){
         const { username, password } = values;
-        console.log(username, password)
+        //发送请求
+        axios.post('/login',{username,password})
+          .then(res => {
+            // console.log(res)
+            const data = res.data;
+            if(!data.status){
+              this.props.history.replace('/')
+            }else{
+              message.error(data.msg,2);
+              this.props.form.resetFields(['password'])
+            }
+          })
+          .catch(err => {
+            message.error("您的网络异常，请刷新重试",2);
+            this.props.form.resetFields(['password'])
+          })
       }else{
         console.log('表单校验失败：',error)
       }
     })
-  }
-  
+    
+  };
   render() {
     const { getFieldDecorator } = this.props.form;
     return (
       <div className="login">
-      
         <header className="login_header">
           <img src={logo} alt="logo"/>
           <h1>React项目: 后台管理系统</h1>
         </header>
-        
         <section className="login_content">
           <h2>用户登录</h2>
           <Form className="login-form" onSubmit={this.login}>
@@ -73,7 +82,7 @@ class Login extends Component {
                     rules:[{validator:this.validator}]
                   }
                 )(
-                  <Input prefix={<Icon type="lock" />} placeholder="密码" className="login_input"/>
+                  <Input prefix={<Icon type="lock" />} placeholder="密码" className="login_input" type="password"/>
                 )
               }
             </Item>
@@ -81,9 +90,7 @@ class Login extends Component {
               <Button type="primary" className="login_btn" htmlType="submit">登录</Button>
             </Item>
           </Form>
-        
         </section>
-      
       </div>
     )
   }
