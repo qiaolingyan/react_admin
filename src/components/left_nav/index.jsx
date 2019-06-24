@@ -24,7 +24,8 @@ class LeftNav extends Component {
       </Item>
     )
   };
-  
+    //只做一次在生命周期函数做
+    //数据初始化渲染必须用，就在componentWillMount，不用就在componentDidMount做，提升初始化渲染速度
   componentWillMount() {
     const { pathname } = this.props.location;
     this.menus = menuList.map((menu) => {
@@ -35,9 +36,9 @@ class LeftNav extends Component {
             key={menu.key}
             title={
               <span>
-                  <Icon type={menu.icon}/>
-                  <span>{menu.title}</span>
-                </span>
+                <Icon type={menu.icon}/>
+                <span>{menu.title}</span>
+              </span>
             }
           >
             {
@@ -52,17 +53,18 @@ class LeftNav extends Component {
         return this.createItem(menu)
       }
     });
-    this.selectedKey = pathname;
+    // this.selectedKey = pathname;
   }
   
   render() {
     const {collapsed} = this.props;
+    const { pathname } = this.props.location;   //因为重定向，所以需要在这获取当前的网址，从而设置为menu的选中状态
     return <div>
       <Link className="logo nav_logo" to="/home">
         <img src={logo} alt=""/>
         <h1 style={{display: collapsed ? 'none' : 'block'}}>硅谷后台</h1>
       </Link>
-      <Menu theme="dark" defaultSelectedKeys={[this.selectedKey]} defaultOpenKeys={[this.OpenKey]} mode="inline">
+      <Menu theme="dark" selectedKeys={[pathname]} defaultOpenKeys={[this.OpenKey]} mode="inline">
         {this.menus}
       </Menu>
     </div>;

@@ -1,25 +1,95 @@
 import React, { Component } from 'react';
+import { Modal } from 'antd';
+import { withRouter } from 'react-router-dom';
+import dayjs from 'dayjs'
+
 import MyButton from '../my_button';
 import './index.less'
-import logo from '../../assets/images/logo.png'
+import { getItem, removeItem } from "../../utils/storage-tools";
+import { reqWeather } from '../../api';
+import menuList from '../../config/menu-config';
 
-export default class ContentHeader extends Component {
+const { confirm } = Modal;
+
+class ContentHeader extends Component {
+  
+  state = {
+    sysTime:dayjs().format('YYYY-MM-DD HH:mm:ss'),
+    weatherImg:"http://api.map.baidu.com/images/weather/day/qing.png",
+    weather:'晴'
+  };
+  
+  componentWillMount() {
+    this.username = getItem().username;
+    this.title = this.getTitle(this.props);
+  }
+  
+  async componentDidMount() {
+    this.timerId = setInterval(()=>{
+      this.setState({
+        sysTime:dayjs().format('YYYY-MM-DD HH:mm:ss')
+      })
+    },1000);
+    const result = await reqWeather();
+    result && this.setState(result);
+  }
+  
+  componentWillReceiveProps(nextProps, nextContext) {
+    this.title = this.getTitle(nextProps);
+  }
+  
+  componentWillUnmount() {
+    clearInterval(this.timerId)
+  }
+  
+  logout = () => {
+    confirm({
+      title: '您确认要退出登录吗',
+      onOk:() => {
+        removeItem();
+        this.props.history.replace('/login')
+      },
+      okText:'确认',
+      cancelText:'取消'
+    });
+  };
+  
+  getTitle = (nextProps) => {
+    const { pathname } = nextProps.location;
+    for (let menu of menuList) {
+      if(menu.children){
+        for (let item of menu.children) {
+          if(item.key === pathname){
+            return item.title;
+          }
+        }
+      }else{
+        if(menu.key === pathname){
+          return menu.title;
+        }
+      }
+    }
+  };
+  
   render() {
+    const { sysTime, weatherImg, weather } = this.state;
     return <div>
       <div className="header_top">
-        <span>欢迎, admin</span>
-        <MyButton>退出</MyButton>
+        <span>欢迎, {this.username}</span>
+        <MyButton onClick={this.logout}>退出</MyButton>
       </div>
       <div className="header_bottom">
         <span className="header_left">
-          首页
+          {this.title}
         </span>
         <div className="header_right">
-          <span>{Date.now()}</span>
-          <img src={logo} alt=""/>
-          <span>晴</span>
+          <span>{sysTime}</span>
+          <img src={weatherImg} alt=""/>
+          <span>{weather}</span>
         </div>
       </div>
     </div>;
   }
 }
+
+export default withRouter(ContentHeader);

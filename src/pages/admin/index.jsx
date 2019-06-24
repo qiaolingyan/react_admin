@@ -1,7 +1,19 @@
 import React, { Component } from 'react';
 import { Layout } from 'antd';
+import { Route, Redirect, Switch } from 'react-router-dom';
+import { getItem } from "../../utils/storage-tools";
 import LeftNav from '../../components/left_nav';
 import ContentHeader from '../../components/content_header';
+import { volidateLogin } from '../../api';
+
+import Home from '../home';
+import Category from '../category';
+import Product from '../product';
+import User from '../user';
+import Role from '../role';
+import Bar from '../charts/bar';
+import Line from '../charts/line';
+import Pie from '../charts/pie';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -15,6 +27,27 @@ export default class Admin extends Component {
     this.setState({ collapsed });
   };
   
+  async componentWillMount() {
+    const user = getItem();
+    
+    if(user && user._id){
+      const result = await volidateLogin(user._id);
+      if(result) {
+        return;
+      }
+    }
+    this.props.history.replace('/login')
+    
+    /*if(!user || !user._id){
+      this.props.history.replace('/login')
+    }else{
+      const result = await volidateLogin(user._id);
+      if(!result){
+        this.props.history.replace('/login')
+      }
+    }*/
+  }
+  
   render() {
     const { collapsed } = this.state;
     return (
@@ -27,7 +60,17 @@ export default class Admin extends Component {
             <ContentHeader />
           </Header>
           <Content style={{ margin: '30px 16px' }}>
-            <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>欢迎使用硅谷后台管理系统</div>
+            <Switch>
+              <Route path="/home" component={Home}/>
+              <Route path="/category" component={Category}/>
+              <Route path="/product" component={Product}/>
+              <Route path="/user" component={User}/>
+              <Route path="/role" component={Role}/>
+              <Route path="/charts/bar" component={Bar}/>
+              <Route path="/charts/line" component={Line}/>
+              <Route path="/charts/pie" component={Pie}/>
+              <Redirect to="/home"/>
+            </Switch>
           </Content>
           <Footer style={{ textAlign: 'center' }}>推荐使用谷歌浏览器，可以获得更佳页面操作体验</Footer>
         </Layout>

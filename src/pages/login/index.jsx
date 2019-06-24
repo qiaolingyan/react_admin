@@ -1,6 +1,7 @@
 // import必须放在最上面，否则会报错
 import React from 'react';
 import { Form, Icon, Input, Button } from 'antd';
+import { setItem } from '../../utils/storage-tools';
 
 import { reLogin } from '../../api';
 import './index.less'
@@ -33,8 +34,13 @@ function Login(props) {
         
         //发送请求
         const result = await reLogin(username, password);
-        if (result) props.history.replace('/');
-        else props.form.resetFields(['password']);   //重置表单项
+        if (result){
+          setItem(result);
+          props.history.replace('/');
+        }
+        else{
+          props.form.resetFields(['password']);
+        }   //重置表单项
         
       } else {
         console.log('表单校验失败：', error)
