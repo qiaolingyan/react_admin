@@ -28,6 +28,7 @@ class LeftNav extends Component {
     //数据初始化渲染必须用，就在componentWillMount，不用就在componentDidMount做，提升初始化渲染速度
   componentWillMount() {
     const { pathname } = this.props.location;
+    // let isHome = true;        //此种方法只适用于初始化渲染
     this.menus = menuList.map((menu) => {
       const children = menu.children;
       if (children) {
@@ -43,17 +44,21 @@ class LeftNav extends Component {
           >
             {
               children.map((item) => {
-                if (pathname === item.key) this.OpenKey = menu.key;
+                if (pathname === item.key) {
+                  // isHome = false;
+                  this.OpenKey = menu.key;
+                }
                 return this.createItem(item)
               })
             }
           </SubMenu>
         )
       } else {
+        // if (menu.key === pathname) isHome = false;
         return this.createItem(menu)
       }
     });
-    // this.selectedKey = pathname;
+    // this.selectedKey = isHome ? '/home' : pathname;
   }
   
   render() {
@@ -64,7 +69,8 @@ class LeftNav extends Component {
         <img src={logo} alt=""/>
         <h1 style={{display: collapsed ? 'none' : 'block'}}>硅谷后台</h1>
       </Link>
-      <Menu theme="dark" selectedKeys={[pathname]} defaultOpenKeys={[this.OpenKey]} mode="inline">
+      <Menu theme="dark" selectedKeys={[pathname]} defaultOpenKeys={[this.OpenKey]} mode="inline">  {/*选中网址对应的导航菜单*/}
+      {/*<Menu theme="dark" defaultSelectedKeys={[this.selectedKey]} defaultOpenKeys={[this.OpenKey]} mode="inline">*/}    {/*点击标题重定向到首页不会选择home，所以不能用*/}
         {this.menus}
       </Menu>
     </div>;

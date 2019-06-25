@@ -44,12 +44,15 @@ class HeaderMain extends Component {
         sysTime:dayjs().format('YYYY-MM-DD HH:mm:ss'),
       })
     },1000);
-    const res = await reqWeather();
+    const {promise,cancel} = reqWeather();
+    this.cancel = cancel;
+    const res = await promise;
     res && this.setState(res);
   }
   
   componentWillUnmount() {
-    clearInterval(this.timeId)
+    clearInterval(this.timeId);
+    this.cancel()
   }
   logout = () => {
     Modal.confirm({

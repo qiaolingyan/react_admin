@@ -1,21 +1,18 @@
 import axios from "axios";
 import {message} from "antd";
-//封装的目的，统一处理错误提示
-export default function ajax(url,data = {},method = 'get'){
-  
+
+export default (url, data = {} , method = 'GET') => {
   method = method.toLowerCase();
-  const reqParams = method === 'get' ? {params:data} : data ;
-  
-  return axios[method](url,reqParams)      //method必须为小写，所以要转换为小写
+  data = method === 'get' ? {params:data} : data;
+  return axios[method](url,data)
   .then(res => {
-    const data = res.data;
-    if(data.status === 0){
-      return data.data
+    const { data } = res;
+    if(data.status === 0) {
+      return data.data || {}
     }else{
-      message.error(data.msg,2);
+      message.error(data.msg,2)
     }
   })
-  .catch(err => {
-    message.error("您的网络异常，请刷新重试",2);
-  })
-}
+  .catch(err => message.error('您的网络异常，请稍后再试',2));
+};
+

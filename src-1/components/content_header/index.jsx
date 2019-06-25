@@ -30,7 +30,9 @@ class ContentHeader extends Component {
         sysTime:dayjs().format('YYYY-MM-DD HH:mm:ss')
       })
     },1000);
-    const result = await reqWeather();
+    const { promise,cancel } = reqWeather();
+    this.cancel = cancel;
+    const result = await promise;
     result && this.setState(result);
   }
   
@@ -39,7 +41,11 @@ class ContentHeader extends Component {
   }
   
   componentWillUnmount() {
-    clearInterval(this.timerId)
+    clearInterval(this.timerId);
+    this.cancel();
+   /*
+    取消jsonp请求，jsonp的返回值就是cancel（）
+   */
   }
   
   logout = () => {

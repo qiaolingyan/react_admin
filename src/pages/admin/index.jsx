@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { Layout } from 'antd';
-import { Route, Redirect, Switch } from 'react-router-dom';
-import { getItem } from "../../utils/storage-tools";
-import LeftNav from '../../components/left_nav';
-import ContentHeader from '../../components/content_header';
-import { volidateLogin } from '../../api';
+import { Redirect,Switch,Route } from 'react-router-dom'
+import LeftNav from '../../components/left-nav'
+import HeaderMain from '../../components/header-main'
+import { getItem } from '../../utils/storage-tools';
+import { volidateLogin } from '../../api'
 
 import Home from '../home';
 import Category from '../category';
@@ -16,52 +16,38 @@ import Line from '../charts/line';
 import Pie from '../charts/pie';
 
 const { Header, Content, Footer, Sider } = Layout;
-
 export default class Admin extends Component {
   state = {
     collapsed: false,
   };
   
   onCollapse = collapsed => {
-    // console.log(collapsed);
     this.setState({ collapsed });
   };
   
   async componentWillMount() {
     const user = getItem();
-    
     if(user && user._id){
-      const result = await volidateLogin(user._id);
-      if(result) return;
+      const res = await volidateLogin(user._id);
+      if(res) return;
     }
-    
-    this.goLogin = true;
-    
-    // this.props.history.replace('/login')
-    
-    /*if(!user || !user._id){
-      this.props.history.replace('/login')
-    }else{
-      const result = await volidateLogin(user._id);
-      if(!result){
-        this.props.history.replace('/login')
-      }
-    }*/
+    this.isLogin = true;
   }
+  
   
   render() {
     const { collapsed } = this.state;
-    if (this.goLogin) {
+    if(this.isLogin){
       return <Redirect to="/login"/>
     }
     return (
       <Layout style={{ minHeight: '100vh' }}>
-        <Sider  collapsible collapsed={collapsed} onCollapse={this.onCollapse}>
-          <LeftNav collapsed={collapsed} />
+        <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse}>
+          <LeftNav collapsed={collapsed}/>
         </Sider>
         <Layout>
-          <Header style={{ background: '#fff', padding: 0 , minHeight: 100}} >
-            <ContentHeader />
+          <Header style={{ background: '#fff', padding: 0 ,minHeight: 100}} >
+            <HeaderMain />
           </Header>
           <Content style={{ margin: '30px 16px' }}>
             <Switch>
@@ -79,6 +65,6 @@ export default class Admin extends Component {
           <Footer style={{ textAlign: 'center' }}>推荐使用谷歌浏览器，可以获得更佳页面操作体验</Footer>
         </Layout>
       </Layout>
-    );
+    )
   }
 }

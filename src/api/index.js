@@ -1,28 +1,37 @@
-import ajax from './ajax';
-import jsonp from 'jsonp'
+
+import Ajax from './ajax';
+import jsonp from 'jsonp';
 import { message } from 'antd'
 
-//登录请求
-export const reLogin = (username,password) => ajax('/login',{ username, password },'post');
+export const reqLogin = (username,password) => Ajax('/login',{username,password},'POST');
+export const volidateLogin = (id) => Ajax('/volidate/login',{id},'POST');
 
-//用户验证请求
-export const volidateLogin = (id) => ajax('/volidate/login',{ id },'post');
-
-//天气请求
 export const reqWeather = () => {
-  return new Promise((resolve,reject) => {
-    const cancel = jsonp('http://api.map.baidu.com/telematics/v3/weather?location=深圳&output=json&ak=3p49MVra6urFRGOT9s8UBWr2',(err,data) => {
-      if(!err){
-        const { dayPictureUrl,weather } =  data.results[0].weather_data[0];
-        resolve({ weatherImg:dayPictureUrl,weather })
-      }else{
-        resolve();
-        message.error('请求天气失败')
-      }
-    });
-    // cancel();
-  })
+  let cancel = null;
+  const promise =  new Promise((resolve,reject) => {
+    cancel = jsonp('http://api.map.baidu.com/telematics/v3/weather?location=深圳&output=json&ak=3p49MVra6urFRGOT9s8UBWr2',{},(err,data) => {
+      try{
+        if(!err){
+          const { dayPictureUrl,weather } = data.results[0].weather_data[0];
+          resolve({weather,weatherImg:dayPictureUrl})
+        }else{
+          resolve();
+          message.error('天气信息请求失败')
+        }
+      }catch(e){
+      resolve();
+      message.error('天气信息请求失败')
+    }
+    })
+  });
+  return {
+    cancel,
+    promise
+  }
 };
 
-//请求分类列表
-export const reqCategories = (parentId) => ajax('/manage/category/list',{ parentId });
+export const reqCategories = (parentId) => Ajax('/manage/category/list',{parentId});
+
+export const reqAddCategories = (categoryName,parentId) => Ajax('/manage/category/add',{categoryName,parentId},'POST');
+
+export const reqUpdateCategories = (categoryName,categoryId) => Ajax('/manage/category/update',{categoryName,categoryId},'POST');
