@@ -11,7 +11,7 @@ export const volidateLogin = (id) => ajax('/volidate/login',{ id },'post');
 //天气请求
 export const reqWeather = () => {
   return new Promise((resolve,reject) => {
-    jsonp('http://api.map.baidu.com/telematics/v3/weather?location=深圳&output=json&ak=3p49MVra6urFRGOT9s8UBWr2',(err,data) => {
+    const cancel = jsonp('http://api.map.baidu.com/telematics/v3/weather?location=深圳&output=json&ak=3p49MVra6urFRGOT9s8UBWr2',(err,data) => {
       if(!err){
         const { dayPictureUrl,weather } =  data.results[0].weather_data[0];
         resolve({ weatherImg:dayPictureUrl,weather })
@@ -19,6 +19,10 @@ export const reqWeather = () => {
         resolve();
         message.error('请求天气失败')
       }
-    })
+    });
+    // cancel();
   })
 };
+
+//请求分类列表
+export const reqCategories = (parentId) => ajax('/manage/category/list',{ parentId });

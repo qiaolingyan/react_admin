@@ -4,7 +4,7 @@ const USE_TIME = 'USE_TIME';
 const EXPIRES_IN = 1000*3600*24*7;
 export const getItem = () => {
   const startTime = localStorage.getItem(USE_TIME);
-  if(Date.now() - startTime >= EXPIRES_IN){
+  if(Date.now() - startTime > EXPIRES_IN){
     removeItem();
     return {}
   }

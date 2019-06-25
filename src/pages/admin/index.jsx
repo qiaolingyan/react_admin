@@ -23,7 +23,7 @@ export default class Admin extends Component {
   };
   
   onCollapse = collapsed => {
-    console.log(collapsed);
+    // console.log(collapsed);
     this.setState({ collapsed });
   };
   
@@ -32,11 +32,12 @@ export default class Admin extends Component {
     
     if(user && user._id){
       const result = await volidateLogin(user._id);
-      if(result) {
-        return;
-      }
+      if(result) return;
     }
-    this.props.history.replace('/login')
+    
+    this.goLogin = true;
+    
+    // this.props.history.replace('/login')
     
     /*if(!user || !user._id){
       this.props.history.replace('/login')
@@ -50,6 +51,9 @@ export default class Admin extends Component {
   
   render() {
     const { collapsed } = this.state;
+    if (this.goLogin) {
+      return <Redirect to="/login"/>
+    }
     return (
       <Layout style={{ minHeight: '100vh' }}>
         <Sider  collapsible collapsed={collapsed} onCollapse={this.onCollapse}>

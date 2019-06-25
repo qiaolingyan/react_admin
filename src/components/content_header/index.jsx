@@ -34,7 +34,7 @@ class ContentHeader extends Component {
     result && this.setState(result);
   }
   
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps(nextProps) {
     this.title = this.getTitle(nextProps);
   }
   
@@ -59,14 +59,10 @@ class ContentHeader extends Component {
     for (let menu of menuList) {
       if(menu.children){
         for (let item of menu.children) {
-          if(item.key === pathname){
-            return item.title;
-          }
+          if(item.key === pathname)return item.title;
         }
       }else{
-        if(menu.key === pathname){
-          return menu.title;
-        }
+        if(menu.key === pathname)return menu.title;
       }
     }
   };
