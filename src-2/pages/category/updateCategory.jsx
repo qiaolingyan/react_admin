@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
-import { Form, Input } from 'antd';
+import {Form, Input} from "antd";
 import PropTypes from 'prop-types';
 const { Item } = Form;
-class UpdateCategory extends Component {
+
+class UpdateCategoryForm extends Component {
   static propTypes = {
     categoryName:PropTypes.string.isRequired
   };
-  validator =(rule,value,callback) => {
+  validator = (rule, value, callback) => {
     if(!value) return callback('分类名称不能为空');
-    if(value === this.props.categoryName) return callback('分类名称已存在');
+    if(value ===this.props.categoryName) return callback('分类名称不能与之前一样');
     callback();
   };
   render() {
@@ -23,14 +24,13 @@ class UpdateCategory extends Component {
                 rules:[{validator:this.validator}]
               }
             )(
-              <Input/>
+              <Input />
             )
           }
-          
         </Item>
       </Form>
     )
   }
 }
 
-export default Form.create()(UpdateCategory)
+export default Form.create()(UpdateCategoryForm)

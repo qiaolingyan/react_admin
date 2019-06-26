@@ -42,3 +42,6 @@ export const reqAddCategories = (categoryName, parentId) => ajax('/manage/catego
 
 //更改分类名称
 export const reqUpdateCategories = (categoryName, categoryId) => ajax('/manage/category/update',{ categoryName, categoryId },'POST');
+
+//请求产品列表
+export const reqProducts = (pageNum, pageSize) => ajax('/manage/product/list',{ pageNum, pageSize });

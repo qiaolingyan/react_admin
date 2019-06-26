@@ -61,7 +61,6 @@ export default class Category extends Component {
         const res = await reqAddCategories(categoryName, parentId);
         if (res) {
           message.success('添加分类成功', 2);
-          
           form.resetFields(['parentId','categoryName']);    //重置表单
           const stateChange = {isShowAddCategories: false};   //隐藏添加分类
           //如果添加的是一级分类，则更新状态展示数据
@@ -152,6 +151,8 @@ export default class Category extends Component {
   };
   
   render() {
+    const {categories, isShowAddCategories, isShowUpdateCategories, isShowSubCategories, subCategories, isLoading } = this.state;
+  
     const columns = [
       {
         title: '品类名称',
@@ -170,7 +171,6 @@ export default class Category extends Component {
         },
       }
     ];
-    const {categories, isShowAddCategories, isShowUpdateCategories, isShowSubCategories, subCategories, isLoading } = this.state;
     return (
         <Card title={isShowSubCategories ? <div><MyButton onClick={this.showCategories}>一级分类</MyButton><Icon type="arrow-right"/>&nbsp;&nbsp;<span>{this.parentCategory.name}</span></div>: "一级分类列表"}
             extra={<Button type="primary" onClick={this.switchDisplay(true)}><Icon type="plus"/>添加品类</Button>}>
@@ -207,7 +207,7 @@ export default class Category extends Component {
             onCancel={this.cancelUpdateCategoryName}
             width={300}
           >
-            <UpdateCategoryForm categoryName={this.category.name} wrappedComponentRef={(form) => this.updateCategoryForm = form}/>
+            <UpdateCategoryForm categories={categories} category={this.category} wrappedComponentRef={(form) => this.updateCategoryForm = form}/>
           </Modal>
         </Card>
     )

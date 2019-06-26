@@ -27,7 +27,9 @@ class LeftNav extends Component {
     //只做一次在生命周期函数做
     //数据初始化渲染必须用，就在componentWillMount，不用就在componentDidMount做，提升初始化渲染速度
   componentWillMount() {
-    const { pathname } = this.props.location;
+    let { pathname } = this.props.location;
+    const reg = /^\/product\//;
+    if (reg.test(pathname)) pathname = '/product';
     // let isHome = true;        //此种方法只适用于初始化渲染
     this.menus = menuList.map((menu) => {
       const children = menu.children;
@@ -44,6 +46,7 @@ class LeftNav extends Component {
           >
             {
               children.map((item) => {
+                
                 if (pathname === item.key) {
                   // isHome = false;
                   this.OpenKey = menu.key;
@@ -63,7 +66,9 @@ class LeftNav extends Component {
   
   render() {
     const {collapsed} = this.props;
-    const { pathname } = this.props.location;   //因为重定向，所以需要在这获取当前的网址，从而设置为menu的选中状态
+    let { pathname } = this.props.location;   //因为重定向，所以需要在这获取当前的网址，从而设置为menu的选中状态
+    const reg = /^\/product\//;
+    if (reg.test(pathname)) pathname = '/product';
     return <div>
       <Link className="logo nav_logo" to="/home">
         <img src={logo} alt=""/>

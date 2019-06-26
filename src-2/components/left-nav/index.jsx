@@ -13,7 +13,9 @@ class LeftNav extends Component {
   };
   
   componentWillMount() {
-    const { pathname } = this.props.location;
+    let { pathname } = this.props.location;
+    const reg = /^\/product\//;
+    if(reg.test(pathname)) pathname = '/product';
     this.menus = menuList.map(menu => {
       const children = menu.children;
       if (children) {
@@ -51,7 +53,9 @@ class LeftNav extends Component {
   
   render() {
     const { collapsed } = this.props;
-    const { pathname } = this.props.location;
+    let { pathname } = this.props.location;
+    const reg = /^\/product\//;
+    if(reg.test(pathname)) pathname = '/product';
     return (
       <div>
         <Link className="logo nav_logo" to="/home">

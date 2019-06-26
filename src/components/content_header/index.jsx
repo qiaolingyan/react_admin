@@ -61,7 +61,9 @@ class ContentHeader extends Component {
   };
   
   getTitle = (nextProps) => {
-    const { pathname } = nextProps.location;
+    let { pathname } = nextProps.location;
+    const reg = /^\/product\//;
+    if (reg.test(pathname)) pathname = '/product';
     for (let menu of menuList) {
       if(menu.children){
         for (let item of menu.children) {

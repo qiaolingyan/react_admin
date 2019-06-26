@@ -35,3 +35,5 @@ export const reqCategories = (parentId) => Ajax('/manage/category/list',{parentI
 export const reqAddCategories = (categoryName,parentId) => Ajax('/manage/category/add',{categoryName,parentId},'POST');
 
 export const reqUpdateCategories = (categoryName,categoryId) => Ajax('/manage/category/update',{categoryName,categoryId},'POST');
+
+export const reqProducts = (pageNum, pageSize) => Ajax('/manage/product/list',{ pageNum, pageSize });

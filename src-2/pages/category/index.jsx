@@ -11,14 +11,36 @@ import UpdateCategory from './updateCategory'
 export default class Category extends Component {
   state = {
     categories:[],
+    subCategories:[],
+    isShowSubCategories:false,
     isShowAddCategory:false,
     isShowUpdateCategory:false,
+    isLoading:true,
   };
   
   async componentDidMount() {
-    const res = await reqCategories('0');
-    res &&this.setState({categories:res})
+    this.fetchReqCategories('0');
   }
+  
+  fetchReqCategories = async (id) => {
+    this.setState({
+      isLoading:true,
+    });
+    const res = await reqCategories(id);
+    if(res){
+      if(id === '0'){
+        this.setState({categories:res})
+      }else{
+        this.setState({
+          isShowSubCategories:true,
+          subCategories:res
+        })
+      }
+    }
+    this.setState({
+      isLoading:false,
+    });
+  };
   
   switchDisplay = (stateValue) => {
     return e => {
@@ -40,6 +62,8 @@ export default class Category extends Component {
           const stateChange = {isShowAddCategory:false};
           if(parentId === '0'){
             stateChange.categories = [...this.state.categories,res]
+          }else if(this.state.isShowSubCategories && parentId === this.parentCategory._id){
+            stateChange.subCategories = [...this.state.subCategories,res]
           }
           this.setState(stateChange)
         }
@@ -55,7 +79,15 @@ export default class Category extends Component {
         const categoryId = this.category._id;
         const res = await reqUpdateCategories(categoryName,categoryId);
         if(res){
-          const categories = this.state.categories.map(category => {
+          form.resetFields(['categoryName']);
+          let categoryData = this.state.categories;
+          let stateName = 'categories';
+          if(this.category.parentId !== '0'){
+            categoryData = this.state.subCategories;
+            stateName = 'subCategories';
+          }
+          
+          const categories = categoryData.map(category => {
             let { _id,name,parentId } = category;
             if(_id === categoryId){
               name = categoryName;
@@ -66,10 +98,10 @@ export default class Category extends Component {
             return category;
           });
           this.setState({
-            categories,
+            [stateName]:categories,
             isShowUpdateCategory:false,
           });
-          form.resetFields(['categoryName']);
+          
         }
       }
     })
@@ -95,9 +127,22 @@ export default class Category extends Component {
     }
   };
   
+  showSubCategories = (category) => {
+    return async () => {
+      this.parentCategory = category;
+      this.fetchReqCategories(category._id);
+    }
+  };
+  
+  showCategories = () => {
+    this.setState({
+      isShowSubCategories:false
+    })
+  };
+  
   
   render() {
-    const { isShowAddCategory, categories, isShowUpdateCategory } = this.state;
+    const { isShowAddCategory, categories, isShowUpdateCategory, subCategories, isShowSubCategories } = this.state;
     const columns = [
       {
         title: '分类名称',
@@ -108,17 +153,18 @@ export default class Category extends Component {
         className: 'category_operation',
         render: category => <div>
           <MyButton onClick={this.saveCategoryName(category)}>修改名称</MyButton>
-          <MyButton>显示其子分类</MyButton>
+          {isShowSubCategories ? null : <MyButton onClick={this.showSubCategories(category)}>显示其子分类</MyButton>}
         </div>
       },
     ];
     
     return (
       
-      <Card title="一级分类列表" extra={<Button type="primary" onClick={this.switchDisplay(true)}><Icon type="plus" />添加分类</Button>}>
+      <Card title={isShowSubCategories ? <div><MyButton onClick={this.showCategories}>一级分类</MyButton><Icon type="arrow-right"/><span>{this.parentCategory.name}</span></div> :"一级分类列表"}
+            extra={<Button type="primary" onClick={this.switchDisplay(true)}><Icon type="plus" />添加分类</Button>}>
         <Table
           columns={columns}
-          dataSource={categories}
+          dataSource={isShowSubCategories ? subCategories : categories}
           bordered
           // loading
           pagination={{

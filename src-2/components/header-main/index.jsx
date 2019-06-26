@@ -26,7 +26,9 @@ class HeaderMain extends Component {
   }
   
   getTitle = (props) => {
-    const { pathname } = props.location;
+    let { pathname } = props.location;
+    const reg = /^\/product\//;
+    if(reg.test(pathname)) pathname = '/product';
     for (let menu of menuList) {
       if(menu.children){
         for (let item of menu.children) {
