@@ -1,37 +1,56 @@
 import React, { Component } from 'react';
-import { Card, Input, Table, Icon, Select, Button } from 'antd'
-import { Link } from 'react-router-dom'
+import { Card, Input, Table, Icon, Select, Button, message } from 'antd'
 import './index.less'
 import MyButton from '../../../components/my_button'
-import { reqProducts } from '../../../api'
+import {reqProducts, reqUpdateProductStatus, reqSearchProducts} from '../../../api'
 const { Option } = Select;
 export default class Index extends Component {
   state = {
     products:[],
     isLoading:true,
+    searchType:'productName',
+    searchValue:'',
+    pageNum:1,
+    pageSize:3
   };
   
-  async componentDidMount() {
+  componentDidMount() {
+    this.getReqProducts(1,3)
+  }
+  
+  getReqProducts = async (pageNum,pageSize) => {
     this.setState({
       isLoading:true,
     });
-    const result = await reqProducts(1,3);
+    const { searchType, searchValue } = this.state;
+    let promise = null;
+    if(this.isSearch && searchValue){  //如果点击过搜索按钮且关键字不为空则搜索，否则展示全部
+      promise = reqSearchProducts({searchType, searchValue, pageNum, pageSize});
+    }else{
+      promise = reqProducts(pageNum,pageSize);
+    }
+    const result = await promise;
     if(result){
       this.setState({
         products:result.list,
         isLoading:false,
+        total:result.total,
       })
     }
-  }
+  };
   
   showAddProducts = () => {
     this.props.history.push('/product/saveupdate')
   };
   
+  showProduct = (path,product) => {
+    return async () => {
+      this.props.history.push(path,product)
+    }
+  };
   
-  render() {
-    const { products, isLoading } = this.state;
-    const columns = [
+  componentWillMount() {
+    this.columns = [
       {
         title:'商品名称',
         dataIndex:'name',
@@ -47,57 +66,99 @@ export default class Index extends Component {
       {
         title:'状态',
         className:"product_status_operator",
-        dataIndex:'status',
-        render:status => {
+        // dataIndex:'status',
+        render:product => {
           return (
-            status === 2
-            ? <div><Button type="primary">下架</Button>&nbsp;&nbsp;在售</div>
-            : <div><Button type="primary">上架</Button>&nbsp;&nbsp;已下架</div>
+            product.status === 2
+              ? <div><Button type="primary" onClick={this.updateProductStatus(product)}>下架</Button>&nbsp;&nbsp;在售</div>
+              : <div><Button type="primary" onClick={this.updateProductStatus(product)}>上架</Button>&nbsp;&nbsp;已下架</div>
           )
         }
       },
       {
         title:'操作',
         className:"product_status_operator",
-        render:products => {
+        render:product => {
           return <div>
-            <MyButton>
-              <Link to="/product/detail">
-                详情
-              </Link>
-            </MyButton>
-            <MyButton>
-              <Link to="/product/saveupdate">
-                修改
-              </Link>
-            </MyButton>
+            <MyButton onClick={this.showProduct('/product/detail',product)}>详情</MyButton>
+            <MyButton onClick={this.showProduct('/product/saveupdate',product)}>修改</MyButton>
           </div>
         }
       },
     ];
+  }
+  
+  updateProductStatus = (product) => {
+    return async () => {
+      let { _id,status } = product;
+      const result = await reqUpdateProductStatus(_id,3-status);
+      if(result){
+        // message.success('更新状态成功~');
+        this.setState({
+          products: this.state.products.map(item => {
+            if (item._id === _id) {
+              item.status = status;
+            }
+            return item;
+          })
+        })
+      }
+    }
+  };
+  
+  search = async () => {
+    const { searchValue, pageNum, pageSize } = this.state;
+    if(searchValue){
+      this.isSearch = true;
+      this.getReqProducts(pageNum, pageSize)
+    }else{
+      message.warn('请输入搜索关键字')
+    }
+  };
+  
+  handleChange = (stateName) => {
+    return e => {
+      let value= '';
+      if(stateName === 'searchType'){
+        value = e
+      }else{
+        value = e.target.value;
+        if(!value) this.isSearch = false;
+      }
+      this.setState({
+        [stateName]:value
+      })
+    }
+  };
+  
+  render() {
+    const { products, isLoading, total } = this.state;
     
     return <Card
       title={
         <div>
-          <Select defaultValue={0}>
-            <Option key={0} value={0}>根据商品名称</Option>
-            <Option key={1} value={1}>根据商品描述</Option>
+          <Select defaultValue="productName" onChange={this.handleChange('searchType')}>
+            <Option key={0} value="productName">根据商品名称</Option>
+            <Option key={1} value="productDesc">根据商品描述</Option>
           </Select>
-          <Input placeholder="关键字" className="productSearch"/>
-          <Button type="primary">搜索</Button>
+          <Input placeholder="关键字" className="productSearch" onChange={this.handleChange('searchValue')}/>
+          <Button type="primary" onClick={this.search}>搜索</Button>
         </div>
       }
       extra={<Button type="primary" onClick={this.showAddProducts}><Icon type="plus"/>添加产品</Button>}
     >
       <Table
-        columns={columns}
+        columns={this.columns}
         dataSource={products}
         bordered
         pagination={{
           showSizeChanger: true,
           pageSizeOptions: ['3', '6', '9', '12'],
           defaultPageSize: 3,
-          showQuickJumper: true
+          showQuickJumper: true,
+          total:total,
+          onChange:this.getReqProducts,
+          onShowSizeChange:this.getReqProducts,
         }}
         rowKey="_id"
         loading={isLoading}

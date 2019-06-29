@@ -43,5 +43,44 @@ export const reqAddCategories = (categoryName, parentId) => ajax('/manage/catego
 //更改分类名称
 export const reqUpdateCategories = (categoryName, categoryId) => ajax('/manage/category/update',{ categoryName, categoryId },'POST');
 
-//请求产品列表
+//请求商品列表
 export const reqProducts = (pageNum, pageSize) => ajax('/manage/product/list',{ pageNum, pageSize });
+
+//请求产品分页列表（搜索)
+export const reqSearchProducts = ({searchType, searchValue, pageNum, pageSize}) => ajax('/manage/product/search',{ [searchType]:searchValue, pageNum, pageSize });
+
+//添加商品
+export const reqAddProduct = ({categoryId,pCategoryId,name,price,desc,detail}) => ajax('/manage/product/add',{categoryId,pCategoryId,name,price,desc,detail},'POST');
+
+//更新商品
+export const reqUpdateProduct = ({name, desc, price, categoryId, pCategoryId, detail, _id}) => ajax('/manage/product/update', {name, desc, price, categoryId, pCategoryId, detail, _id}, 'POST');
+
+//更新商品状态
+export const reqUpdateProductStatus = (productId, status) => ajax('/manage/product/updateStatus',{ productId, status },'POST');
+
+//上传图片
+// export const reqUploadImg = (image) => ajax('/manage/img/upload',{ image },'POST');
+
+//删除图片
+export const reqDeleteProductImg = (name, id) => ajax('/manage/img/delete', {name, id}, 'POST');
+
+//获取角色列表
+export const reqRoles = () => ajax('/manage/role/list');
+
+//添加角色列表
+export const reqAddRoles = (name) => ajax('/manage/role/add',{name},'POST');
+
+//更新角色
+export const reqUpdateRole = ({_id, auth_name, menus}) => ajax('/manage/role/update', {_id, auth_name, menus}, 'POST');
+
+//获取用户列表
+export const reqUsers = () => ajax('/manage/user/list');
+
+//添加用户
+export const reqAddUser = ({username, password, phone, email, role_id}) => ajax('/manage/user/add', {username, password, phone, email, role_id}, 'POST');
+
+//删除用户
+export const reqDeleteUser = (userId) => ajax('/manage/user/delete',{userId},'POST');
+
+//更新用户
+export const reqUpdateUser = ({ username, password, phone, email, _id, role_id }) => ajax('/manage/user/update',{ username, password, phone, email, _id, role_id },'POST');

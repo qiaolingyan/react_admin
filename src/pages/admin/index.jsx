@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component , Fragment} from 'react';
 import { Layout } from 'antd';
-import { Route, Redirect, Switch } from 'react-router-dom';
+import { Route, Redirect, Switch, } from 'react-router-dom';
 import { getItem } from "../../utils/storage-tools";
 import LeftNav from '../../components/left_nav';
 import ContentHeader from '../../components/content_header';
@@ -20,6 +20,7 @@ const { Header, Content, Footer, Sider } = Layout;
 export default class Admin extends Component {
   state = {
     collapsed: false,
+    menus:[],
     /*isLoading:true,
     success:false*/
   };
@@ -31,24 +32,26 @@ export default class Admin extends Component {
   
   async componentWillMount() {
     const user = getItem();
-  
-    /*if(user && user._id){
-      const result = await volidateLogin(user._id);
-      if(result) {
-        return this.setState({
-          isLoading:false,
-          success:true
-        })
-      }
-    }
-    this.setState({
-      isLoading:false,
-      success:false
-    })*/
-    
-    
     if(user && user._id){
       const result = await volidateLogin(user._id);
+      let {role: {menus}, username} = user;
+      if (username === 'admin') {
+        menus = [
+          '/home',
+          '/products',
+          '/category',
+          '/product',
+          '/user',
+          '/role',
+          '/charts',
+          '/charts/bar',
+          '/charts/line',
+          '/charts/pie'
+        ]
+      }
+      this.setState({
+        menus:menus.reverse()
+      });
       if(result) return;
     }
     this.isLogin = true;   //需要重定向时设置它为true，否则为undefined
@@ -58,7 +61,8 @@ export default class Admin extends Component {
   }
   
   render() {
-    const { collapsed } = this.state;
+    const { collapsed, menus } = this.state;
+    
     
     if (this.isLogin) {
       return <Redirect to="/login"/>
@@ -73,15 +77,28 @@ export default class Admin extends Component {
         </Header>
         <Content style={{ margin: '30px 16px' }}>
           <Switch>
-            <Route path="/home" component={Home}/>
-            <Route path="/category" component={Category}/>
-            <Route path="/product" component={Product}/>
-            <Route path="/user" component={User}/>
-            <Route path="/role" component={Role}/>
-            <Route path="/charts/bar" component={Bar}/>
-            <Route path="/charts/line" component={Line}/>
-            <Route path="/charts/pie" component={Pie}/>
-            <Redirect to="/home"/>
+            {
+              menus.map(item => {
+                switch (item) {
+                  case '/home' :
+                    return <Fragment key={item}><Route path="/home" component={Home}/><Redirect to="/home"/></Fragment>;
+                  case '/category' :
+                    return <Route path="/category" component={Category} key={item}/>
+                  case '/product' :
+                    return <Route path="/product" component={Product} key={item}/>
+                  case '/user' :
+                    return <Route path="/user" component={User} key={item}/>
+                  case '/role' :
+                    return <Route path="/role" component={Role} key={item}/>
+                  case '/charts/bar' :
+                    return <Route path="/charts/bar" component={Bar} key={item}/>
+                  case '/charts/line' :
+                    return <Route path="/charts/line" component={Line} key={item}/>
+                  case '/charts/pie' :
+                    return <Route path="/charts/pie" component={Pie} key={item}/>
+                }
+              })
+            }
           </Switch>
         </Content>
         <Footer style={{ textAlign: 'center' }}>推荐使用谷歌浏览器，可以获得更佳页面操作体验</Footer>
