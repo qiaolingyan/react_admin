@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-// import { Descriptions } from 'antd';
 import {List, Card, Icon} from 'antd';
+import { reqCategories } from '../../../api'
 import './index.less'
 
 const Item = List.Item;
@@ -20,6 +20,17 @@ export default class Detail extends Component {
         return <Item>{item}</Item>;
     }
   };
+  
+  async componentDidMount() {
+    const { pCategoryId } = this.props.location.state;
+    if (pCategoryId !== '0') {
+      const result = await reqCategories('0');
+      const {name} = result.find((item) => item._id === pCategoryId);
+      this.setState({
+        pCategoryName: name
+      })
+    }
+  }
   
   goBack = () => {
     this.props.history.goBack();

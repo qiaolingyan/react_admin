@@ -91,15 +91,18 @@ export default class Index extends Component {
   updateProductStatus = (product) => {
     return async () => {
       let { _id,status } = product;
-      const result = await reqUpdateProductStatus(_id,3-status);
+      status = 3-status;
+      const result = await reqUpdateProductStatus(_id,status);
       if(result){
         // message.success('更新状态成功~');
         this.setState({
           products: this.state.products.map(item => {
             if (item._id === _id) {
-              item.status = status;
+              // item.status = status;
+              return {...item,status}
             }
             return item;
+            
           })
         })
       }
