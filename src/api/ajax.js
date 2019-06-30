@@ -5,7 +5,7 @@ export default function ajax(url,data = {},method = 'get'){
   
   method = method.toLowerCase();
   const reqParams = method === 'get' ? {params:data} : data ;
-  
+  console.log(url);
   return axios[method](url,reqParams)      //method必须为小写，所以要转换为小写
   .then(res => {
     const data = res.data;
@@ -16,6 +16,7 @@ export default function ajax(url,data = {},method = 'get'){
     }
   })
   .catch(err => {
+    console.log(err);
     message.error("您的网络异常，请刷新重试",2);
   })
 }
